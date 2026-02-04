@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas App</title>
+    <script src="dest/app.js" defer></script>    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas class="mainCanvas" width="1000" height="800"></canvas>
+
+    <div class="sidebar"> 
+        <div class="controls">
+            <h2>Geometric shapes</h2>
+            <div class="buttonGroup">
+                <img alt="shapes icon" src="assets/shapes.png" class="icon" id="shapesIcon">
+                <img alt="colors icon" src="assets/colors.png" class="icon" id="colorsIcon">
+                <img alt="sizes icon" src="assets/sizes.png" class="icon" id="sizesIcon">
+            </div>
+
+            <div class="shapesContainer">
+                <button class="buttonCircle">Circle</button>
+                <button class="buttonSquare">Square</button>
+                <button class="buttonTriangle">Triangle</button>
+                <button class="buttonRectangle">Rectangle</button>
+            </div>
+
+            <div class="colorsContainer">
+                <div class="colorOption" data-color="#ff2424" style="background-color: #ff2424;"></div>
+                <div class="colorOption" data-color="#4096ff" style="background-color: #4096ff;"></div>
+                <div class="colorOption" data-color="#00af00" style="background-color: #00af00;"></div>
+                <div class="colorOption" data-color="#efef30" style="background-color: #efef30;"></div>
+                <div class="colorOption" data-color="#8707aa" style="background-color: #8707aa;"></div>
+                <div class="colorOption" data-color="#ff8fa2" style="background-color: #ff8fa2;"></div>
+                <div class="colorOption" data-color="#000000" style="background-color: black;"></div>
+            </div>
+        </div>
+
+        <div class="legend">
+            <h4>Screen info legend</h4>
+            <p class="resolutionInfo">Loading dimensions...</p>
+            <p class="mousePosition">Coordinates: X: 0, Y: 0</p>
+            <p class="shapeCount">Shapes: 0</p>
+        </div>
+    </div>
+    <script type="module" src="/app.ts"></script>
+</body>
+</html>
