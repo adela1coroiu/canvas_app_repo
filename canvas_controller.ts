@@ -8,13 +8,22 @@ export class CanvasController {
         this.context = canvas.getContext('2d')!;
     }
 
+    getShapeAt(x: number, y: number): Shape | undefined {
+        for(let i = this.shapes.length - 1; i >= 0; i--) {
+            if(this.shapes[i].contains(x, y)) {
+                return this.shapes[i];
+            }
+        }
+        return undefined;
+    }
+
     addShape(shape: Shape) {
         this.shapes.push(shape);
         this.render();
         this.updateLegend();
     }
 
-    private render() {
+    render() {
         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.shapes.forEach(shape => shape.draw(this.context));
     }

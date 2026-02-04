@@ -1,54 +1,117 @@
 import { CanvasController } from "./canvas_controller.ts";
+import { Shape } from "./shape.ts";
 import { Circle, Square, Triangle, Rectangle } from "./shapes.ts";
 
 console.log("App.ts is loaded and running!");
 
 const canvas = document.querySelector('.mainCanvas') as HTMLCanvasElement;
 const controller = new CanvasController(canvas);
-const buttonCircle = document.querySelector('.buttonCircle');
-const buttonSquare = document.querySelector('.buttonSquare');
-const buttonTriangle = document.querySelector('.buttonTriangle');
-const buttonRectangle = document.querySelector('.buttonRectangle');
-
-let currentShape: 'circle' | 'square' | 'triangle' | 'rectangle' = 'circle';
-
-const shapesIcon = document.getElementById('shapesIcon');
-const shapesContainer = document.querySelector('.shapesContainer');
-
-const colorsIcon = document.getElementById('colorsIcon');
-const colorsContainer = document.querySelector('.colorsContainer');
-const colorOptions = document.querySelectorAll('.colorOption');
-
 const mousePosition = document.querySelector('.mousePosition') as HTMLElement;
 
+let currentShape: string = 'circle';
 let currentColor: string = '#4096ff';
 
-//function that displays the available shape options upon clicking on the shapes icon
-shapesIcon?.addEventListener('click', () => {
-    shapesContainer?.classList.toggle('active');
-    colorsContainer?.classList.remove('active');
-});
+let selectedShape: Shape | null = null;
+let isDragging: boolean = false;
 
-//function that displays the available color options upon clicking on the colors icon
-colorsIcon?.addEventListener('click', () => {
-    colorsContainer?.classList.toggle('active');
-    shapesContainer?.classList.remove('active');
-});
+const menus = {
+    shapes: document.querySelector('.shapesContainer'),
+    colors: document.querySelector('.colorsContainer')
+}
 
-//function that handles the color selected
-colorOptions.forEach(option => {
-    option.addEventListener('click', () => {
-        const selectedColor = option.getAttribute('data-color');
-        if(selectedColor) {
-            currentColor = selectedColor;
+//function for handling which icon (shapes/colors) has been clicked and bringing forward the corresponding modal
+document.querySelectorAll('.icon').forEach(icon => {
+    icon.addEventListener('click', () => {
+        const target = icon.id === 'shapesIcon' ? menus.shapes : icon.id === 'colorsIcon' ? menus.colors : null;
 
-            colorOptions.forEach(opt => opt.classList.remove('selected'));
-            option.classList.add('selected');
-
-            console.log(`Selected color: ${currentColor}`);
-        }
+        Object.values(menus).forEach(menu => {
+            if(menu === target) {
+                menu?.classList.toggle('active');
+            }
+            else {
+                menu?.classList.remove('active');
+            }
+        })
     })
+});
+
+//function for handling the click on a shape and updating the currentShape to be rendered on the canvas
+document.querySelectorAll('.shapesContainer button').forEach(button => {
+    button.addEventListener('click', () => {
+        currentShape = button.className.replace('button', '').toLowerCase();
+        console.log(`Switched to ${currentShape}`);
+    })
+});
+
+//generic function for mouse events
+const getRelativeCoordinates = (event: MouseEvent) => {
+    const rect = canvas.getBoundingClientRect();
+    return {
+        x: Math.round(event.clientX - rect.left),
+        y: Math.round(event.clientY - rect.top)
+    }
+};
+
+//function to detect if we clicked a shape and tried to drag it
+canvas.addEventListener('mousedown', (event) => {
+    const {x, y} = getRelativeCoordinates(event);
+    const clickedShape = controller.getShapeAt(x, y);
+
+    if(clickedShape) {
+        selectedShape = clickedShape;
+        isDragging = true;
+        canvas.style.cursor = 'grabbing';
+    }
+});
+
+//function to update the location of the shape we just dragged
+canvas.addEventListener('mousemove', (event) => {
+    const {x, y} = getRelativeCoordinates(event);
+
+    if(mousePosition) {
+        mousePosition.innerText = `Coordinates: X: ${x}, Y: ${y}`;
+    }
+
+    if(isDragging && selectedShape) {
+        selectedShape.x = x;
+        selectedShape.y = y;
+        controller.render();
+    }
+});
+
+//function to stop dragging the shape
+canvas.addEventListener('mouseup', (event) => {
+    isDragging = false;
+    selectedShape = null;
+    canvas.style.cursor = 'crosshair';
+});
+
+//function to check if the spot we want to drag the shape it is free
+canvas.addEventListener('click', (event) => {
+    const {x, y} = getRelativeCoordinates(event);
+
+    const existingShape = controller.getShapeAt(x, y);
+
+    if(!existingShape) {
+        const shape = createShape(currentShape, x, y, currentColor);
+        controller.addShape(shape);
+    }
 })
+
+// //function to draw a shape
+// canvas.addEventListener('click', (event) => {
+//     const {x, y} = getRelativeCoordinates(event);
+//     const shape = createShape(currentShape, x, y, currentColor);
+//     controller.addShape(shape);
+// });
+
+//function to track mouse movement (for legend)
+canvas.addEventListener('mousemove', (event) => {
+    const {x, y} = getRelativeCoordinates(event);
+    if(mousePosition) {
+        mousePosition.innerText = `Coordinates: X: ${x}, Y: ${y}`;
+    }
+});
 
 //function that handles the shape
 const createShape = (shape: string, x: number, y: number, color: string) => {
@@ -61,46 +124,20 @@ const createShape = (shape: string, x: number, y: number, color: string) => {
     }
 }
 
-//function that draws the shape upon clicking on a spot in the canvas
-canvas.addEventListener('click', (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+//function for picking a certain color for our shape 
+menus.colors?.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement;
+    const selectedColor = target.getAttribute('data-color');
 
-    const shape = createShape(currentShape, x, y, currentColor);
+    if(selectedColor) {
+        currentColor = selectedColor;
 
-    controller.addShape(shape);
-});
+        menus.colors?.querySelectorAll('.colorOption').forEach(opt => {
+            opt.classList.remove('selected');
+        });
 
-//function that sets the shape to be drawn to circle
-buttonCircle?.addEventListener('click', () => {
-    currentShape = 'circle';
-});
-
-//function that sets the shape to be drawn to square
-buttonSquare?.addEventListener('click', () => {
-    currentShape = 'square';
-});
-
-//function that sets the shape to be drawn to triangle
-buttonTriangle?.addEventListener('click', () => {
-    currentShape = 'triangle';
-});
-
-//function that sets the shape to be drawn to rectangle
-buttonRectangle?.addEventListener('click', () => {
-    currentShape = 'rectangle';
+        target.classList.add('selected');
+    }
 })
 
-//event listener for the potential change of the mouse's position
-canvas.addEventListener('mousemove', (event) => {
-    const rect = canvas.getBoundingClientRect();
-
-    const x = Math.round(event.clientX - rect.left);
-    const y = Math.round(event.clientY - rect.top);
-
-    if(mousePosition) {
-        mousePosition.innerText = `Coordinates: X: ${x}, Y: ${y}`;
-    }
-});
 
