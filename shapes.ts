@@ -1,5 +1,12 @@
 import { Shape } from "./shape.ts";
 
+const checkOverlapping = (a: any, b: any) => {
+    if(a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top) {
+        return true;
+    }
+    return false;
+}
+
 export class Circle implements Shape {
     constructor(public x: number, public y: number, private radius: number, private color: string) {}
 
@@ -18,6 +25,19 @@ export class Circle implements Shape {
         }
         return true;
     }
+
+    getBounds(): { left: number; right: number; top: number; bottom: number; } {
+        return {
+            left: this.x - this.radius,
+            right: this.x + this.radius,
+            top: this.y - this.radius,
+            bottom: this.y + this.radius
+        }
+    }
+
+    intersects(other: Shape): boolean {
+        return checkOverlapping(this.getBounds(), other.getBounds());
+    }
 }
 
 export class Square implements Shape {
@@ -35,6 +55,19 @@ export class Square implements Shape {
         if(mouseY > this.y + this.size/2) return false;
         if(mouseY < this.y - this.size/2) return false;
         return true;
+    }
+
+    getBounds(): { left: number; right: number; top: number; bottom: number; } {
+        return {
+            left: this.x - this.size/2,
+            right: this.x + this.size/2,
+            top: this.y - this.size/2,
+            bottom: this.y + this.size/2
+        }
+    }
+
+    intersects(other: Shape): boolean {
+        return checkOverlapping(this.getBounds(), other.getBounds());
     }
 }
 
@@ -81,6 +114,19 @@ export class Triangle implements Shape {
         }
         return false;
     }
+
+    getBounds(): { left: number; right: number; top: number; bottom: number; } {
+        return {
+            left: this.x - this.size/2,
+            right: this.x + this.size/2,
+            top: this.y - this.size/2,
+            bottom: this.y + this.size/2
+        }
+    }
+
+    intersects(other: Shape): boolean {
+        return checkOverlapping(this.getBounds(), other.getBounds());
+    }
 }
 
 export class Rectangle implements Shape {
@@ -109,5 +155,18 @@ export class Rectangle implements Shape {
         if(mouseX > x4 || mouseY < y4) return false;
 
         return true;
+    }
+
+    getBounds(): { left: number; right: number; top: number; bottom: number; } {
+        return {
+            left: this.x - this.width/2,
+            right: this.x + this.width/2,
+            top: this.y - this.height/2,
+            bottom: this.y + this.height/2
+        }
+    }
+
+    intersects(other: Shape): boolean {
+        return checkOverlapping(this.getBounds(), other.getBounds());
     }
 }

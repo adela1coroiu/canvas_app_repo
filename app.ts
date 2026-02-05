@@ -73,9 +73,19 @@ canvas.addEventListener('mousemove', (event) => {
     }
 
     if(isDragging && selectedShape) {
+        const previousX = selectedShape.x;
+        const previousY = selectedShape.y;
+
         selectedShape.x = x;
         selectedShape.y = y;
-        controller.render();
+
+        if(controller.checkCollision(selectedShape)) {
+            selectedShape.x = previousX;
+            selectedShape.y = previousY;
+        }
+        else {
+            controller.render();
+        }
     }
 });
 
@@ -94,16 +104,15 @@ canvas.addEventListener('click', (event) => {
 
     if(!existingShape) {
         const shape = createShape(currentShape, x, y, currentColor);
-        controller.addShape(shape);
+
+        if(!controller.checkCollision(shape)) {
+            controller.addShape(shape);
+        }
+        else {
+            alert("Cannot place shape here!");
+        }
     }
 })
-
-// //function to draw a shape
-// canvas.addEventListener('click', (event) => {
-//     const {x, y} = getRelativeCoordinates(event);
-//     const shape = createShape(currentShape, x, y, currentColor);
-//     controller.addShape(shape);
-// });
 
 //function to track mouse movement (for legend)
 canvas.addEventListener('mousemove', (event) => {

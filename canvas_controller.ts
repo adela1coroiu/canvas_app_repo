@@ -34,4 +34,8 @@ export class CanvasController {
             counter.innerText = `Shapes: ${this.shapes.length}`;
         }
     }
+
+    checkCollision(movingShape: Shape): boolean {
+        return this.shapes.some(s => s !== movingShape && movingShape.intersects(s));
+    }
 }

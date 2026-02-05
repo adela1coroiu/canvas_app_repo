@@ -3,4 +3,6 @@ export interface Shape {
     y: number;
     draw(context: CanvasRenderingContext2D): void;
     contains(mouseX: number, mouseY: number): boolean;
+    getBounds(): {left: number; right: number; top: number; bottom: number};
+    intersects(other: Shape): boolean;
 }
